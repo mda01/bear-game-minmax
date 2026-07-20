@@ -1,4 +1,4 @@
-Achi is a two-player assymetric board game.
+Bear Game is a two-player assymetric board game.
 
 This projects aims to implement MinMax for this game. Let's try beating it!
 
