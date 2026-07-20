@@ -22,10 +22,7 @@ for n == 24, we can move from 16 to 23
 
 */
 
-use std::{
-    collections::HashSet,
-    hash::{Hash, Hasher},
-};
+use std::hash::{Hash, Hasher};
 
 #[derive(Eq, Clone)]
 pub struct Board {
@@ -34,7 +31,14 @@ pub struct Board {
     pub turns: i16,
 }
 
-fn create_init_board() -> Board {
+#[derive(Clone, Copy)]
+pub struct Move {
+    pub piece: usize,
+    pub origin: i16,
+    pub destination: i16,
+}
+
+pub fn create_init_board() -> Board {
     return Board {
         board: vec![24, 8, 9, 20],
         player_turn: true,
@@ -79,19 +83,18 @@ fn adjacent_pos(pos: i16) -> Vec<i16> {
     return adj_pos;
 }
 
-fn next_moves(b: &Board) -> HashSet<Board> {
-    let mut moves = HashSet::new();
-    let next_turn = b.turns + 1;
+pub fn next_moves(b: &Board) -> Vec<Move> {
+    let mut moves = vec![];
 
     if b.player_turn {
         let adj_pos = adjacent_pos(b.board[0]);
         for p in adj_pos {
             if !b.board.contains(&p) {
-                let mut new_board = b.clone();
-                new_board.board[0] = p;
-                new_board.player_turn = false;
-                new_board.turns = next_turn;
-                moves.insert(new_board);
+                moves.push(Move {
+                    piece: 0,
+                    origin: b.board[0],
+                    destination: p,
+                });
             }
         }
     } else {
@@ -99,15 +102,27 @@ fn next_moves(b: &Board) -> HashSet<Board> {
             let adj_pos = adjacent_pos(b.board[i]);
             for p in adj_pos {
                 if !b.board.contains(&p) {
-                    let mut new_board = b.clone();
-                    new_board.board[i] = p;
-                    new_board.player_turn = true;
-                    new_board.turns = next_turn;
-                    moves.insert(new_board);
+                    moves.push(Move {
+                        piece: i,
+                        origin: b.board[i],
+                        destination: p,
+                    });
                 }
             }
         }
     }
 
     return moves;
+}
+
+pub fn play_move(b: &mut Board, m: Move) {
+    b.board[m.piece] = m.destination;
+    b.player_turn = !b.player_turn;
+}
+
+pub fn print_board(b: &Board) {
+    println!(
+        "{} {} {} {}",
+        b.board[0], b.board[1], b.board[2], b.board[3]
+    );
 }
